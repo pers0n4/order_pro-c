@@ -19,6 +19,7 @@ CREATE TABLE users
     username     VARCHAR2(20) NOT NULL UNIQUE,
     password     VARCHAR2(40) NOT NULL,
     phone_number VARCHAR2(14) NOT NULL UNIQUE,
+    address      VARCHAR2(80) NOT NULL,
     user_type    VARCHAR2(8) DEFAULT 'consumer' CHECK (user_type IN ('provider', 'consumer')),
     created_at   DATE        DEFAULT SYSDATE,
     CONSTRAINT user_pk PRIMARY KEY (user_id)
