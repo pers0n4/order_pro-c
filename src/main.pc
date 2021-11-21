@@ -37,12 +37,24 @@ void SqlError(msg) char *msg;
   exit(EXIT_FAILURE);
 }
 
-void ConnectDatabase(const char *username, const char *password) {
-  // clang-format off
+int ConnectDatabase(int argc, const char **argv) {
   EXEC SQL WHENEVER SQLERROR DO SqlError("ORACLE error--");
-  EXEC SQL CONNECT :username IDENTIFIED BY :password;
-  // clang-format on
-  printf("\nConnected to ORACLE as user: %s\n", username);
+  switch (argc) {
+    case 2:
+      // clang-format off
+      EXEC SQL CONNECT :argv[1];
+      // clang-format on
+      break;
+    case 3:
+      // clang-format off
+      EXEC SQL CONNECT :argv[1] IDENTIFIED BY :argv[2];
+      // clang-format on
+      break;
+    default:
+      return -1;
+  }
+  printf("\nConnected to ORACLE as user: %s\n", argv[1]);
+  return 0;
 }
 
 // TODO: separate menu cateogry
@@ -67,7 +79,7 @@ void ShowMenu() {
 }
 
 int main(int argc, const char *argv[]) {
-  ConnectDatabase(argv[1], argv[2]);
+  ConnectDatabase(argc, argv);
 
   int select_menu = -1;
   while (select_menu != 0) {
