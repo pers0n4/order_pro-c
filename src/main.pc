@@ -44,7 +44,31 @@ void ConnectDatabase(const char *username, const char *password) {
   printf("\nConnected to ORACLE as user: %s\n", username);
 }
 
+// TODO: separate menu cateogry
+void ShowMenu() {
+  printf("1. 로그인\n");
+  printf("2. 회원 가입\n");
+  puts("");
+
+  printf("1. 가게 등록\n");
+  printf("2. 가게 선택\n");
+  printf("3. 가게 수정\n");
+  puts("");
+
+  printf("1. 메뉴 등록\n");
+  printf("2. 메뉴 수정\n");
+  printf("3. 메뉴 삭제\n");
+  puts("");
+
+  printf("1. 주문하기\n");
+  printf("2. 주문 조회\n");
+  printf("3. 리뷰\n");
+}
+
 int main(int argc, const char *argv[]) {
   ConnectDatabase(argv[1], argv[2]);
+
+  ShowMenu();
+
   return 0;
 }
