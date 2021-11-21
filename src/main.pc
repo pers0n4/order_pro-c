@@ -36,7 +36,7 @@ void SqlError(msg) char *msg;
   exit(EXIT_FAILURE);
 }
 
-void ConnectDatabase(char *username, char *password) {
+void ConnectDatabase(const char *username, const char *password) {
   // clang-format off
   EXEC SQL WHENEVER SQLERROR DO SqlError("ORACLE error--");
   EXEC SQL CONNECT :username IDENTIFIED BY :password;
@@ -44,8 +44,7 @@ void ConnectDatabase(char *username, char *password) {
   printf("\nConnected to ORACLE as user: %s\n", username);
 }
 
-int main(int argc, char const *argv[]) {
-  ConnectDatabase(/* username */, /* password */);
-
+int main(int argc, const char *argv[]) {
+  ConnectDatabase(argv[1], argv[2]);
   return 0;
 }
