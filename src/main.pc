@@ -78,11 +78,105 @@ void ShowMenu() {
   printf("3. 리뷰\n");
 }
 
+int SignUp() {
+  EXEC SQL BEGIN DECLARE SECTION;
+  VARCHAR username[21];
+  VARCHAR password[41];
+  VARCHAR password_confirm[41];
+  VARCHAR phone_number[15];
+  VARCHAR address[81];
+  VARCHAR user_type[9];
+  EXEC SQL END DECLARE SECTION;
+
+  printf("아이디를 입력하세요: ");
+  fgets((char *)username.arr, sizeof(username.arr), stdin);
+  username.arr[strlen((char *)username.arr) - 1] = '\0';
+  username.len = strlen((char *)username.arr);
+  if (username.len == 0) {
+    printf("아이디를 입력하세요.\n");
+    return -201;
+  }
+
+  printf("비밀번호를 입력하세요: ");
+  fgets((char *)password.arr, sizeof(password.arr), stdin);
+  password.arr[strlen((char *)password.arr) - 1] = '\0';
+  password.len = strlen((char *)password.arr);
+  if (password.len == 0) {
+    printf("비밀번호를 입력하세요.\n");
+    return -202;
+  }
+
+  printf("비밀번호를 한 번 더 입력하세요: ");
+  fgets((char *)password_confirm.arr, sizeof(password_confirm.arr), stdin);
+  password_confirm.arr[strlen((char *)password_confirm.arr) - 1] = '\0';
+  password_confirm.len = strlen((char *)password_confirm.arr);
+  if (strcmp((char *)password.arr, (char *)password_confirm.arr)) {
+    printf("비밀번호가 일치하지 않습니다.\n");
+    return -202;
+  }
+
+  printf("전화번호를 입력하세요: ");
+  fgets((char *)phone_number.arr, sizeof(phone_number.arr), stdin);
+  phone_number.arr[strlen((char *)phone_number.arr) - 1] = '\0';
+  phone_number.len = strlen((char *)phone_number.arr);
+  if (phone_number.len == 0) {
+    printf("전화번호를 입력하세요.\n");
+    return -203;
+  }
+
+  printf("주소를 입력하세요: ");
+  fgets((char *)address.arr, sizeof(address.arr), stdin);
+  address.arr[strlen((char *)address.arr) - 1] = '\0';
+  address.len = strlen((char *)address.arr);
+  if (address.len == 0) {
+    printf("주소를 입력하세요.\n");
+    return -204;
+  }
+
+  printf("회원 유형을 입력하세요 [Consumer / Provider]: ");
+  fgets((char *)user_type.arr, sizeof(user_type.arr), stdin);
+  printf("%s\n", user_type.arr);
+  if (user_type.len == 0 || !strcmp((char *)user_type.arr, "consumer") ||
+      !strncmp((char *)user_type.arr, "c", 1) ||
+      !strncmp((char *)user_type.arr, "C", 1)) {
+    user_type.len = strlen(strcpy((char *)user_type.arr, "consumer"));
+  } else if (!strcmp((char *)user_type.arr, "provider") ||
+             !strncmp((char *)user_type.arr, "p", 1) ||
+             !strncmp((char *)user_type.arr, "P", 1)) {
+    user_type.len = strlen(strcpy((char *)user_type.arr, "provider"));
+  } else {
+    printf("회원 유형을 입력하세요.\n");
+    return -205;
+  }
+  printf("%s\n", user_type.arr);
+
+  // clang-format off
+  EXEC SQL INSERT
+    INTO users(user_id,
+               username,
+               password,
+               phone_number,
+               address,
+               user_type)
+    VALUES (users_seq.nextval,
+            :username,
+            :password,
+            :phone_number,
+            :address,
+            :user_type);
+  // clang-format on
+
+  EXEC SQL COMMIT WORK;
+  printf("\n회원가입이 완료되었습니다.\n");
+  return 0;
+}
+
 int main(int argc, const char *argv[]) {
   ConnectDatabase(argc, argv);
 
   int select_menu = -1;
-  while (select_menu != 0) {
+  int return_code = 0;
+  while (select_menu != 0 && return_code == 0) {
     ShowMenu();
 
     scanf("%d", &select_menu);
@@ -93,7 +187,7 @@ int main(int argc, const char *argv[]) {
         /* code */
         break;
       case 2:
-        /* code */
+        return_code = SignUp();
         break;
       default:
         break;
