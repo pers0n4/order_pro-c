@@ -21,7 +21,7 @@ docker run --rm oracle-proc
 
 ```shell
 docker run -it --rm oracle-proc bash
-make -f proc.mk
+make -f demo_proc_ic.mk
 ```
 
 ### Build Pro*C project

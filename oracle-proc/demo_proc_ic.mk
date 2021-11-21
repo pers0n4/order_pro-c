@@ -4,16 +4,16 @@
 ###############################################################################
 #  Usage :
 # For compiling proc demos
-#    make -f proc.mk
+#    make -f demo_proc_ic.mk
 #
 # For precompiling, compiling & linking the procdemo.pc file
-#    make -f proc.mk build EXE=procdemo OBJS=procdemo.o
+#    make -f demo_proc_ic.mk build EXE=procdemo OBJS=procdemo.o
 #
 # In general, for any proc program
-#    make -f proc.mk build EXE=<exename> OBJS="<list of dependent objs>"
+#    make -f demo_proc_ic.mk build EXE=<exename> OBJS="<list of dependent objs>"
 #
 #    To make use of any PROC options during precompilation,
-#        make -f proc.mk build PROCFLAGS="<list of proc options>"
+#        make -f demo_proc_ic.mk build PROCFLAGS="<list of proc options>"
 #            EXE=<exename> OBJS="<list of dependent objs>"
 #
 # NOTES:
@@ -37,18 +37,18 @@ CC=/usr/bin/gcc
 cc=/usr/bin/gcc
 
 # InstantClient Directories.
-ICSDKHOME=/usr/include/oracle/21/client64/
-ICLIBHOME=/usr/lib/oracle/21/client64/
+ICSDKHOME=/usr/include/oracle/21/client64
+ICLIBHOME=/usr/lib/oracle/21/client64
 
 MKLINK=ln
 REMOVE=rm -rf
 CLNCACHE=cleancache
 CACHEDIR=SunWS_cachea
 MAKE=make
-MAKEFILE=proc.mk
+MAKEFILE=demo_proc_ic.mk
 PROCDEMO=procdemo
 
-PROC=$(ICLIBHOME)bin/proc
+PROC=$(ICLIBHOME)/bin/proc
 SO_EXT=.so
 I_SYM=-I
 
@@ -67,7 +67,7 @@ LPFLAGS=
 GFLAG=
 CDEBUG=
 USRFLAGS=
-ICLIBPATH=$(LDPATHFLAG)$(ICLIBHOME)lib/
+ICLIBPATH=$(LDPATHFLAG)$(ICLIBHOME)/lib
 PFLAGS=$(CCINCLUDES) $(SPFLAGS) $(LPFLAGS)
 CFLAGS=$(GFLAG) $(OPTIMIZE) $(CDEBUG) $(CCFLAGS) $(PFLAGS) $(USRFLAGS)
 
