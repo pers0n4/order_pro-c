@@ -28,5 +28,4 @@ make -f demo_proc_ic.mk
 
 ```shell
 docker run -it --rm -v $(pwd)/src:/usr/src/app -w /usr/src/app oracle-proc make
-./main username password
 ```
