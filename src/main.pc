@@ -13,6 +13,7 @@
 #include <sqlcpr.h>
 #include <sqlda.h>
 #include <stdio.h>
+#include <stdio_ext.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -68,7 +69,24 @@ void ShowMenu() {
 int main(int argc, const char *argv[]) {
   ConnectDatabase(argv[1], argv[2]);
 
-  ShowMenu();
+  int select_menu = -1;
+  while (select_menu != 0) {
+    ShowMenu();
+
+    scanf("%d", &select_menu);
+    __fpurge(stdin);
+
+    switch (select_menu) {
+      case 1:
+        /* code */
+        break;
+      case 2:
+        /* code */
+        break;
+      default:
+        break;
+    }
+  }
 
   return 0;
 }
