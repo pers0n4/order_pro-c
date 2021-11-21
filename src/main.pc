@@ -17,6 +17,13 @@
 #include <stdlib.h>
 #include <string.h>
 
+struct {
+  VARCHAR username[20];
+  VARCHAR phone_number[14];
+  VARCHAR address[80];
+  VARCHAR user_type[8];
+} user;
+
 void SqlError(msg) char *msg;
 {
   char err_msg[512];
@@ -171,12 +178,61 @@ int SignUp() {
   return 0;
 }
 
+int SignIn() {
+  EXEC SQL BEGIN DECLARE SECTION;
+  VARCHAR username[21];
+  VARCHAR password[41];
+  EXEC SQL END DECLARE SECTION;
+
+  printf("아이디를 입력하세요: ");
+  fgets((char *)username.arr, sizeof(username.arr), stdin);
+  username.arr[strlen((char *)username.arr) - 1] = '\0';
+  username.len = strlen((char *)username.arr);
+  if (username.len == 0) {
+    printf("아이디를 입력하세요.\n");
+    return -211;
+  }
+
+  printf("비밀번호를 입력하세요: ");
+  fgets((char *)password.arr, sizeof(password.arr), stdin);
+  password.arr[strlen((char *)password.arr) - 1] = '\0';
+  password.len = strlen((char *)password.arr);
+  if (password.len == 0) {
+    printf("비밀번호를 입력하세요.\n");
+    return -212;
+  }
+
+  // clang-format off
+  EXEC SQL SELECT username, phone_number, address, user_type
+    INTO :user
+    FROM users
+    WHERE username = :username
+    AND password = :password;
+  // clang-format on
+
+  user.username.arr[user.username.len] = '\0';
+  user.phone_number.arr[user.phone_number.len] = '\0';
+  user.address.arr[user.address.len] = '\0';
+  user.user_type.arr[user.user_type.len] = '\0';
+
+  EXEC SQL WHENEVER NOT FOUND DO break;
+
+  printf("\n%s님 환영합니다.\n", user.username.arr);
+  printf("전화번호: %s\n", user.phone_number.arr);
+  printf("주소: %s\n", user.address.arr);
+  printf("회원 유형: %s\n", user.user_type.arr);
+
+  return 0;
+}
+
 int main(int argc, const char *argv[]) {
   ConnectDatabase(argc, argv);
 
   int select_menu = -1;
   int return_code = 0;
   while (select_menu != 0 && return_code == 0) {
+    printf("\n현재 로그인된 유저: %s\n\n", user.username.arr);
+
     ShowMenu();
 
     scanf("%d", &select_menu);
@@ -184,7 +240,7 @@ int main(int argc, const char *argv[]) {
 
     switch (select_menu) {
       case 1:
-        /* code */
+        return_code = SignIn();
         break;
       case 2:
         return_code = SignUp();
