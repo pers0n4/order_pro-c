@@ -1,0 +1,51 @@
+/**
+ * @file main.pc
+ * @author Dong-Young Kim (31337.persona@gmail.com)
+ * @brief
+ * @version 0.1.0
+ * @date 2021-11-21
+ *
+ * @copyright Copyright (c) 2021
+ *
+ */
+
+#include <sqlca.h>
+#include <sqlcpr.h>
+#include <sqlda.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+void SqlError(msg) char *msg;
+{
+  char err_msg[512];
+  size_t buf_len, msg_len;
+
+  EXEC SQL WHENEVER SQLERROR CONTINUE;
+
+  printf("\n%s\n", msg);
+
+  /* Call sqlglm() to get the complete text of the
+   * error message.
+   */
+  buf_len = sizeof(err_msg);
+  sqlglm(err_msg, &buf_len, &msg_len);
+  printf("%.*s\n", msg_len, err_msg);
+
+  EXEC SQL ROLLBACK RELEASE;
+  exit(EXIT_FAILURE);
+}
+
+void ConnectDatabase(char *username, char *password) {
+  // clang-format off
+  EXEC SQL WHENEVER SQLERROR DO SqlError("ORACLE error--");
+  EXEC SQL CONNECT :username IDENTIFIED BY :password;
+  // clang-format on
+  printf("\nConnected to ORACLE as user: %s\n", username);
+}
+
+int main(int argc, char const *argv[]) {
+  ConnectDatabase(/* username */, /* password */);
+
+  return 0;
+}
