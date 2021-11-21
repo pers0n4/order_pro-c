@@ -37,8 +37,8 @@ CC=/usr/bin/gcc
 cc=/usr/bin/gcc
 
 # InstantClient Directories.
-ICSDKHOME=/usr/include/oracle/21/client64/
-ICLIBHOME=/usr/lib/oracle/21/client64/
+ICSDKHOME=/usr/include/oracle/21/client64
+ICLIBHOME=/usr/lib/oracle/21/client64
 
 MKLINK=ln
 REMOVE=rm -rf
@@ -48,7 +48,7 @@ MAKE=make
 MAKEFILE=Makefile
 PROJECT=main
 
-PROC=$(ICLIBHOME)bin/proc
+PROC=$(ICLIBHOME)/bin/proc
 SO_EXT=.so
 I_SYM=-I
 
@@ -67,7 +67,7 @@ LPFLAGS=
 GFLAG=
 CDEBUG=
 USRFLAGS=
-ICLIBPATH=$(LDPATHFLAG)$(ICLIBHOME)lib/
+ICLIBPATH=$(LDPATHFLAG)$(ICLIBHOME)/lib
 PFLAGS=$(CCINCLUDES) $(SPFLAGS) $(LPFLAGS)
 CFLAGS=$(GFLAG) $(OPTIMIZE) $(CDEBUG) $(CCFLAGS) $(PFLAGS) $(USRFLAGS)
 
