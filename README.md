@@ -12,6 +12,7 @@ You need [Oracle Instant Client Precompiler](https://www.oracle.com/database/tec
 git clone https://github.com/pers0n4/delivery_proc
 
 docker build -t oracle-proc ./oracle-proc
+docker run --rm oracle-proc
 ```
 
 ## Usage
@@ -26,5 +27,6 @@ make -f proc.mk
 ### Build Pro*C project
 
 ```shell
-docker run --rm -v $(pwd)/src:/usr/src/app oracle-proc make
+docker run -it --rm -v $(pwd)/src:/usr/src/app -w /usr/src/app oracle-proc make
+./main username password
 ```
