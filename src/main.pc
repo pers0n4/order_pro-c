@@ -179,7 +179,9 @@ int SignIn() {
 }
 
 int SignOut() {
-  free(shop);
+  if (shop) {
+    free(shop);
+  }
   memset(user, 0, sizeof(struct User));
   is_authorized = false;
   printf("로그아웃 되었습니다.\n\n");
