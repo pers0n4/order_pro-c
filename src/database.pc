@@ -1,0 +1,46 @@
+#include <sqlcpr.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+#include "database.h"
+
+void SqlError(char *msg) {
+  char err_msg[512];
+  size_t buf_len, msg_len;
+
+  EXEC SQL WHENEVER SQLERROR CONTINUE;
+
+  printf("\n%s\n", msg);
+
+  /* Call sqlglm() to get the complete text of the
+   * error message.
+   */
+  buf_len = sizeof(err_msg);
+  sqlglm(err_msg, &buf_len, &msg_len);
+  printf("%.*s\n", msg_len, err_msg);
+
+  EXEC SQL ROLLBACK RELEASE;
+  exit(EXIT_FAILURE);
+}
+
+int ConnectDatabase(int argc, const char **argv) {
+  EXEC SQL WHENEVER SQLERROR DO SqlError("ORACLE error--");
+  switch (argc) {
+    case 2:
+      // clang-format off
+      EXEC SQL CONNECT :argv[1];
+      // clang-format on
+      break;
+    case 3:
+      // clang-format off
+      EXEC SQL CONNECT :argv[1] IDENTIFIED BY :argv[2];
+      // clang-format on
+      break;
+    default:
+      printf("Usage: %s (username) (password)\n", argv[0]);
+      printf("       %s (uid)\n", argv[0]);
+      exit(EXIT_FAILURE);
+  }
+  printf("\nConnected to ORACLE as user: %s\n\n", argv[1]);
+  return 0;
+}

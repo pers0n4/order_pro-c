@@ -17,52 +17,14 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "database.h"
+
 struct {
   VARCHAR username[20];
   VARCHAR phone_number[14];
   VARCHAR address[80];
   VARCHAR user_type[8];
 } user;
-
-void SqlError(msg) char *msg;
-{
-  char err_msg[512];
-  size_t buf_len, msg_len;
-
-  EXEC SQL WHENEVER SQLERROR CONTINUE;
-
-  printf("\n%s\n", msg);
-
-  /* Call sqlglm() to get the complete text of the
-   * error message.
-   */
-  buf_len = sizeof(err_msg);
-  sqlglm(err_msg, &buf_len, &msg_len);
-  printf("%.*s\n", msg_len, err_msg);
-
-  EXEC SQL ROLLBACK RELEASE;
-  exit(EXIT_FAILURE);
-}
-
-int ConnectDatabase(int argc, const char **argv) {
-  EXEC SQL WHENEVER SQLERROR DO SqlError("ORACLE error--");
-  switch (argc) {
-    case 2:
-      // clang-format off
-      EXEC SQL CONNECT :argv[1];
-      // clang-format on
-      break;
-    case 3:
-      // clang-format off
-      EXEC SQL CONNECT :argv[1] IDENTIFIED BY :argv[2];
-      // clang-format on
-      break;
-    default:
-      return -1;
-  }
-  printf("\nConnected to ORACLE as user: %s\n", argv[1]);
-  return 0;
-}
 
 // TODO: separate menu cateogry
 void ShowMenu() {
@@ -241,6 +203,7 @@ int main(int argc, const char *argv[]) {
     switch (select_menu) {
       case 1:
         return_code = SignIn();
+        printf("\n%s님 환영합니다.\n", user.username.arr);
         break;
       case 2:
         return_code = SignUp();

@@ -85,17 +85,18 @@ THREADLIBS=-lpthread
 
 C2O=$(CC) $(CFLAGS) -c $*.c
 PCC2C=$(PROC) $(PROCFLAGS) iname=$(PCCSRC)
-DEMO_PROC_BUILD=$(CC) -o $(EXE) $(OBJS) $(LDFLAGS) $(PROLDLIBS)
+PROC_BUILD=$(CC) -o $(EXE) $(OBJS) $(LDFLAGS) $(PROLDLIBS)
+SOURCES=database
 
 #-----------------------------------------------------------------------------
 # Targets for building the proc sample programs.
 all: clean $(PROJECT)
 
 $(PROJECT):
-	$(MAKE) -f $(MAKEFILE) build OBJS=$@.o EXE=$@
+	$(MAKE) -f $(MAKEFILE) build OBJS="$@.o $(addsuffix .o,$(SOURCES))" EXE=$@
 
 build: $(CLNCACHE) $(OBJS)
-	$(DEMO_PROC_BUILD)
+	$(PROC_BUILD)
 
 #-----------------------------------------------------------------------------
 # Here are some rules for converting .pc -> .c -> .o
@@ -118,6 +119,7 @@ pc1:
 # Clean up all executables, *.o and generated *.c files
 clean: $(CLNCACHE)
 	$(REMOVE) $(PROJECT) $(PROJECT).o $(PROJECT).c $(PROJECT).lis
+	$(REMOVE) $(addsuffix .o,$(SOURCES)) $(addsuffix .c,$(SOURCES)) $(addsuffix .lis,$(SOURCES))
 
 cleancache:
 	$(REMOVE) $(CACHEDIR)
