@@ -20,31 +20,37 @@
 #include "database.h"
 
 struct {
-  VARCHAR username[20];
-  VARCHAR phone_number[14];
-  VARCHAR address[80];
-  VARCHAR user_type[8];
+  VARCHAR username[21];
+  VARCHAR phone_number[15];
+  VARCHAR address[81];
+  VARCHAR user_type[9];
 } user;
 
 // TODO: separate menu cateogry
 void ShowMenu() {
+  printf("0. 종료\n");
   printf("1. 로그인\n");
   printf("2. 회원 가입\n");
   puts("");
 
-  printf("1. 가게 등록\n");
-  printf("2. 가게 선택\n");
-  printf("3. 가게 수정\n");
-  puts("");
+  if (!strcmp(user.user_type.arr, "provider")) {
+    printf("1. 가게 등록\n");
+    printf("2. 가게 선택\n");
+    printf("3. 가게 수정\n");
+    puts("");
 
-  printf("1. 메뉴 등록\n");
-  printf("2. 메뉴 수정\n");
-  printf("3. 메뉴 삭제\n");
-  puts("");
+    printf("1. 메뉴 등록\n");
+    printf("2. 메뉴 수정\n");
+    printf("3. 메뉴 삭제\n");
+    puts("");
+  }
 
-  printf("1. 주문하기\n");
-  printf("2. 주문 조회\n");
-  printf("3. 리뷰\n");
+  if (!strcmp(user.user_type.arr, "customer")) {
+    printf("1. 주문하기\n");
+    printf("2. 주문 조회\n");
+    printf("3. 리뷰\n");
+    puts("");
+  }
 }
 
 int SignUp() {
@@ -177,12 +183,7 @@ int SignIn() {
   user.address.arr[user.address.len] = '\0';
   user.user_type.arr[user.user_type.len] = '\0';
 
-  EXEC SQL WHENEVER NOT FOUND DO break;
-
   printf("\n%s님 환영합니다.\n", user.username.arr);
-  printf("전화번호: %s\n", user.phone_number.arr);
-  printf("주소: %s\n", user.address.arr);
-  printf("회원 유형: %s\n", user.user_type.arr);
 
   return 0;
 }
@@ -193,17 +194,19 @@ int main(int argc, const char *argv[]) {
   int select_menu = -1;
   int return_code = 0;
   while (select_menu != 0 && return_code == 0) {
-    printf("\n현재 로그인된 유저: %s\n\n", user.username.arr);
+    if (user.username.len > 0) {
+      printf("\n현재 로그인된 유저: %s\n\n", user.username.arr);
+    }
 
     ShowMenu();
 
+    printf("입력: ");
     scanf("%d", &select_menu);
     __fpurge(stdin);
 
     switch (select_menu) {
       case 1:
         return_code = SignIn();
-        printf("\n%s님 환영합니다.\n", user.username.arr);
         break;
       case 2:
         return_code = SignUp();
@@ -213,5 +216,6 @@ int main(int argc, const char *argv[]) {
     }
   }
 
-  return 0;
+  EXEC SQL ROLLBACK WORK RELEASE;
+  exit(EXIT_SUCCESS);
 }
