@@ -259,7 +259,7 @@ int SelectShop() {
   printf("가게 아이디를 입력하세요: ");
   scanf("%d", &shop_id);
 
-  EXEC SQL WHENEVER NOT FOUND DO SqlError("ORACLE error--\n");
+  EXEC SQL WHENEVER NOT FOUND DO SqlError("ORACLE error--");
 
   // clang-format off
   EXEC SQL SELECT shop_id, owner_id, title
@@ -487,10 +487,10 @@ int main(int argc, const char *argv[]) {
     exit(EXIT_FAILURE);
   }
 
-  ClearScreen();
   int select_menu = -1;
   int return_code = 0;
   while (select_menu != 0 && return_code == 0) {
+    ClearScreen();
     if (is_authorized) {
       printf("현재 로그인된 유저: %s\n\n", user->username.arr);
     }
