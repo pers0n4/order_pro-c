@@ -373,8 +373,7 @@ void ShowMenu() {
       puts("");
     }
   }
-
-  if (!strcmp(user->user_type.arr, "customer")) {
+  if (!strcmp(user->user_type.arr, "consumer")) {
     printf("101. 주문하기 (TODO)\n");
     printf("102. 주문 조회 (TODO)\n");
     printf("103. 리뷰 (TODO)\n");
@@ -435,7 +434,7 @@ int main(int argc, const char *argv[]) {
             KeyHit();
             break;
         }
-      } else if (!strcmp(user->user_type.arr, "customer")) {
+      } else if (!strcmp(user->user_type.arr, "consumer")) {
         switch (select_menu) {
           case 101:
             break;
