@@ -19,6 +19,7 @@
 #include <string.h>
 
 #include "database.h"
+#include "terminal.h"
 
 struct User {
   int user_id;
@@ -177,7 +178,7 @@ int SignOut() {
 void ShowMenu() {
   printf("0. 종료\n\n");
   if (is_authorized) {
-    printf("1. 회원정보 수정\n");
+    printf("1. 회원정보 수정 (TODO)\n");
     printf("2. 로그아웃\n");
   } else {
     printf("1. 로그인\n");
@@ -187,27 +188,26 @@ void ShowMenu() {
   puts("");
 
   if (!strcmp(user->user_type.arr, "provider")) {
-    printf("1. 가게 등록\n");
-    printf("2. 가게 선택\n");
-    printf("3. 가게 수정\n");
+    printf("101. 가게 등록\n");
+    printf("102. 가게 조회\n");
     puts("");
 
-    printf("1. 메뉴 등록\n");
-    printf("2. 메뉴 수정\n");
-    printf("3. 메뉴 삭제\n");
+    printf("201. 메뉴 등록 (TODO)\n");
+    printf("202. 메뉴 수정 (TODO)\n");
+    printf("203. 메뉴 삭제 (TODO)\n");
     puts("");
   }
 
   if (!strcmp(user->user_type.arr, "customer")) {
-    printf("1. 주문하기\n");
-    printf("2. 주문 조회\n");
-    printf("3. 리뷰\n");
+    printf("101. 주문하기 (TODO)\n");
+    printf("102. 주문 조회 (TODO)\n");
+    printf("103. 리뷰 (TODO)\n");
     puts("");
   }
 }
 
 int main(int argc, const char *argv[]) {
-  printf("%c[H%c[J", '\033', '\033');
+  ClearScreen();
   ConnectDatabase(argc, argv);
 
   if ((user = (struct User *)malloc(sizeof(struct User))) == NULL) {
@@ -227,7 +227,7 @@ int main(int argc, const char *argv[]) {
     printf("입력: ");
     scanf("%d", &select_menu);
     __fpurge(stdin);
-    printf("%c[H%c[J", '\033', '\033');
+    ClearScreen();
 
     if (is_authorized) {
       switch (select_menu) {
@@ -252,6 +252,7 @@ int main(int argc, const char *argv[]) {
           break;
       }
     }
+    ClearScreen();
   }
 
   EXEC SQL ROLLBACK WORK RELEASE;
