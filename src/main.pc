@@ -356,7 +356,6 @@ void ShowMenu() {
     printf("1. 로그인\n");
     printf("2. 회원 가입\n");
   }
-
   puts("");
 
   if (!strcmp(user->user_type.arr, "provider")) {
@@ -384,7 +383,6 @@ void ShowMenu() {
 }
 
 int main(int argc, const char *argv[]) {
-  ClearScreen();
   ConnectDatabase(argc, argv);
 
   if ((user = (struct User *)malloc(sizeof(struct User))) == NULL) {
@@ -392,6 +390,7 @@ int main(int argc, const char *argv[]) {
     exit(EXIT_FAILURE);
   }
 
+  ClearScreen();
   int select_menu = -1;
   int return_code = 0;
   while (select_menu != 0 && return_code == 0) {
@@ -414,25 +413,37 @@ int main(int argc, const char *argv[]) {
         case 2:
           return_code = SignOut();
           break;
-        case 101:
-          return_code = RegisterShop();
-          break;
-        case 102:
-          return_code = ReadShopsFromOwner();
-          KeyHit();
-          break;
-        case 103:
-          return_code = SelectShop();
-          break;
-        case 201:
-          return_code = CreateMenu();
-          break;
-        case 202:
-          return_code = ReadMenusFromShop();
-          KeyHit();
-          break;
-        default:
-          break;
+      }
+      if (!strcmp(user->user_type.arr, "provider")) {
+        if (!shop && select_menu >= 200 && select_menu <= 300) continue;
+        switch (select_menu) {
+          case 101:
+            return_code = RegisterShop();
+            break;
+          case 102:
+            return_code = ReadShopsFromOwner();
+            KeyHit();
+            break;
+          case 103:
+            return_code = SelectShop();
+            break;
+          case 201:
+            return_code = CreateMenu();
+            break;
+          case 202:
+            return_code = ReadMenusFromShop();
+            KeyHit();
+            break;
+        }
+      } else if (!strcmp(user->user_type.arr, "customer")) {
+        switch (select_menu) {
+          case 101:
+            break;
+          case 102:
+            break;
+          case 103:
+            break;
+        }
       }
     } else {
       switch (select_menu) {
@@ -446,7 +457,6 @@ int main(int argc, const char *argv[]) {
           break;
       }
     }
-    ClearScreen();
   }
 
   EXEC SQL ROLLBACK WORK RELEASE;
