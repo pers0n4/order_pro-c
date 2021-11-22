@@ -167,6 +167,13 @@ int SignIn() {
   return 0;
 }
 
+int SignOut() {
+  memset(user, 0, sizeof(struct User));
+  is_authorized = false;
+  printf("로그아웃 되었습니다.\n\n");
+  return 0;
+}
+
 void ShowMenu() {
   printf("0. 종료\n\n");
   if (is_authorized) {
@@ -212,7 +219,7 @@ int main(int argc, const char *argv[]) {
   int return_code = 0;
   while (select_menu != 0 && return_code == 0) {
     if (is_authorized) {
-      printf("\n현재 로그인된 유저: %s\n\n", user->username.arr);
+      printf("현재 로그인된 유저: %s\n\n", user->username.arr);
     }
 
     ShowMenu();
@@ -222,15 +229,28 @@ int main(int argc, const char *argv[]) {
     __fpurge(stdin);
     printf("%c[H%c[J", '\033', '\033');
 
-    switch (select_menu) {
-      case 1:
-        return_code = SignIn();
-        break;
-      case 2:
-        return_code = SignUp();
-        break;
-      default:
-        break;
+    if (is_authorized) {
+      switch (select_menu) {
+        case 1:
+          //
+          break;
+        case 2:
+          return_code = SignOut();
+          break;
+        default:
+          break;
+      }
+    } else {
+      switch (select_menu) {
+        case 1:
+          return_code = SignIn();
+          break;
+        case 2:
+          return_code = SignUp();
+          break;
+        default:
+          break;
+      }
     }
   }
 
