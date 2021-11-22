@@ -12,6 +12,7 @@
 #include <sqlca.h>
 #include <sqlcpr.h>
 #include <sqlda.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdio_ext.h>
 #include <stdlib.h>
@@ -19,39 +20,16 @@
 
 #include "database.h"
 
-struct {
+struct User {
+  int user_id;
   VARCHAR username[21];
   VARCHAR phone_number[15];
   VARCHAR address[81];
   VARCHAR user_type[9];
-} user;
+};
+bool is_authorized = false;
 
-// TODO: separate menu cateogry
-void ShowMenu() {
-  printf("0. 종료\n");
-  printf("1. 로그인\n");
-  printf("2. 회원 가입\n");
-  puts("");
-
-  if (!strcmp(user.user_type.arr, "provider")) {
-    printf("1. 가게 등록\n");
-    printf("2. 가게 선택\n");
-    printf("3. 가게 수정\n");
-    puts("");
-
-    printf("1. 메뉴 등록\n");
-    printf("2. 메뉴 수정\n");
-    printf("3. 메뉴 삭제\n");
-    puts("");
-  }
-
-  if (!strcmp(user.user_type.arr, "customer")) {
-    printf("1. 주문하기\n");
-    printf("2. 주문 조회\n");
-    printf("3. 리뷰\n");
-    puts("");
-  }
-}
+struct User *user;
 
 int SignUp() {
   EXEC SQL BEGIN DECLARE SECTION;
@@ -171,31 +149,70 @@ int SignIn() {
   }
 
   // clang-format off
-  EXEC SQL SELECT username, phone_number, address, user_type
+  EXEC SQL SELECT user_id, username, phone_number, address, user_type
     INTO :user
     FROM users
     WHERE username = :username
     AND password = :password;
   // clang-format on
 
-  user.username.arr[user.username.len] = '\0';
-  user.phone_number.arr[user.phone_number.len] = '\0';
-  user.address.arr[user.address.len] = '\0';
-  user.user_type.arr[user.user_type.len] = '\0';
+  user->username.arr[user->username.len] = '\0';
+  user->phone_number.arr[user->phone_number.len] = '\0';
+  user->address.arr[user->address.len] = '\0';
+  user->user_type.arr[user->user_type.len] = '\0';
 
-  printf("\n%s님 환영합니다.\n", user.username.arr);
+  is_authorized = true;
+  printf("\n%s님 환영합니다.\n", user->username.arr);
 
   return 0;
 }
 
+void ShowMenu() {
+  printf("0. 종료\n\n");
+  if (is_authorized) {
+    printf("1. 회원정보 수정\n");
+    printf("2. 로그아웃\n");
+  } else {
+    printf("1. 로그인\n");
+    printf("2. 회원 가입\n");
+  }
+
+  puts("");
+
+  if (!strcmp(user->user_type.arr, "provider")) {
+    printf("1. 가게 등록\n");
+    printf("2. 가게 선택\n");
+    printf("3. 가게 수정\n");
+    puts("");
+
+    printf("1. 메뉴 등록\n");
+    printf("2. 메뉴 수정\n");
+    printf("3. 메뉴 삭제\n");
+    puts("");
+  }
+
+  if (!strcmp(user->user_type.arr, "customer")) {
+    printf("1. 주문하기\n");
+    printf("2. 주문 조회\n");
+    printf("3. 리뷰\n");
+    puts("");
+  }
+}
+
 int main(int argc, const char *argv[]) {
+  printf("%c[H%c[J", '\033', '\033');
   ConnectDatabase(argc, argv);
+
+  if ((user = (struct User *)malloc(sizeof(struct User))) == NULL) {
+    fprintf(stderr, "Memory allocation error.\n");
+    exit(EXIT_FAILURE);
+  }
 
   int select_menu = -1;
   int return_code = 0;
   while (select_menu != 0 && return_code == 0) {
-    if (user.username.len > 0) {
-      printf("\n현재 로그인된 유저: %s\n\n", user.username.arr);
+    if (is_authorized) {
+      printf("\n현재 로그인된 유저: %s\n\n", user->username.arr);
     }
 
     ShowMenu();
@@ -203,6 +220,7 @@ int main(int argc, const char *argv[]) {
     printf("입력: ");
     scanf("%d", &select_menu);
     __fpurge(stdin);
+    printf("%c[H%c[J", '\033', '\033');
 
     switch (select_menu) {
       case 1:
