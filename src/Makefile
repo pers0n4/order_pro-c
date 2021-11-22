@@ -86,14 +86,15 @@ THREADLIBS=-lpthread
 C2O=$(CC) $(CFLAGS) -c $*.c
 PCC2C=$(PROC) $(PROCFLAGS) iname=$(PCCSRC)
 PROC_BUILD=$(CC) -o $(EXE) $(OBJS) $(LDFLAGS) $(PROLDLIBS)
-SOURCES=database
+PROC_SOURCES=database
+C_SOURCES=terminal
 
 #-----------------------------------------------------------------------------
 # Targets for building the proc sample programs.
 all: clean $(PROJECT)
 
 $(PROJECT):
-	$(MAKE) -f $(MAKEFILE) build OBJS="$@.o $(addsuffix .o,$(SOURCES))" EXE=$@
+	$(MAKE) -f $(MAKEFILE) build OBJS="$@.o $(addsuffix .o,$(C_SOURCES) $(PROC_SOURCES))" EXE=$@
 
 build: $(CLNCACHE) $(OBJS)
 	$(PROC_BUILD)
@@ -119,7 +120,7 @@ pc1:
 # Clean up all executables, *.o and generated *.c files
 clean: $(CLNCACHE)
 	$(REMOVE) $(PROJECT) $(PROJECT).o $(PROJECT).c $(PROJECT).lis
-	$(REMOVE) $(addsuffix .o,$(SOURCES)) $(addsuffix .c,$(SOURCES)) $(addsuffix .lis,$(SOURCES))
+	$(REMOVE) $(addsuffix .o,$(C_SOURCES) $(PROC_SOURCES)) $(addsuffix .c,$(PROC_SOURCES)) $(addsuffix .lis,$(PROC_SOURCES))
 
 cleancache:
 	$(REMOVE) $(CACHEDIR)
