@@ -34,6 +34,14 @@ bool is_authorized = false;
 
 struct User *user;
 
+typedef struct Shop {
+  int shop_id;
+  int owner_id;
+  VARCHAR title[21];
+} Shop;
+
+Shop *shop;
+
 int SignUp() {
   EXEC SQL BEGIN DECLARE SECTION;
   VARCHAR username[21];
@@ -171,6 +179,7 @@ int SignIn() {
 }
 
 int SignOut() {
+  free(shop);
   memset(user, 0, sizeof(struct User));
   is_authorized = false;
   printf("로그아웃 되었습니다.\n\n");
@@ -233,6 +242,35 @@ int ReadShopsFromOwner() {
   return 0;
 }
 
+int SelectShop() {
+  int shop_id;
+  int owner_id;
+  VARCHAR title[21];
+
+  if (shop == NULL) {
+    if ((shop = (Shop *)malloc(sizeof(Shop))) == NULL) {
+      fprintf(stderr, "Memory allocation error.\n");
+      exit(EXIT_FAILURE);
+    }
+  }
+
+  printf("가게 아이디를 입력하세요: ");
+  scanf("%d", &shop_id);
+
+  EXEC SQL WHENEVER NOT FOUND DO SqlError("ORACLE error--\n");
+
+  // clang-format off
+  EXEC SQL SELECT shop_id, owner_id, title
+    INTO :shop
+    FROM shops
+    WHERE shop_id = :shop_id;
+  // clang-format on
+
+  shop->title.arr[shop->title.len] = '\0';
+
+  return 0;
+}
+
 void ShowMenu() {
   printf("0. 종료\n\n");
   if (is_authorized) {
@@ -248,12 +286,15 @@ void ShowMenu() {
   if (!strcmp(user->user_type.arr, "provider")) {
     printf("101. 가게 등록\n");
     printf("102. 가게 조회\n");
+    printf("103. 가게 선택\n");
     puts("");
 
-    printf("201. 메뉴 등록 (TODO)\n");
-    printf("202. 메뉴 수정 (TODO)\n");
-    printf("203. 메뉴 삭제 (TODO)\n");
-    puts("");
+    if (shop) {
+      printf("201. 메뉴 등록 (TODO)\n");
+      printf("202. 메뉴 수정 (TODO)\n");
+      printf("203. 메뉴 삭제 (TODO)\n");
+      puts("");
+    }
   }
 
   if (!strcmp(user->user_type.arr, "customer")) {
@@ -301,6 +342,9 @@ int main(int argc, const char *argv[]) {
         case 102:
           return_code = ReadShopsFromOwner();
           KeyHit();
+          break;
+        case 103:
+          return_code = SelectShop();
           break;
         default:
           break;
