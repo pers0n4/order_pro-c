@@ -21,6 +21,8 @@
 #include "database.h"
 #include "terminal.h"
 
+char query[1024];
+
 struct User {
   int user_id;
   VARCHAR username[21];
@@ -175,6 +177,62 @@ int SignOut() {
   return 0;
 }
 
+int RegisterShop() {
+  EXEC SQL BEGIN DECLARE SECTION;
+  VARCHAR title[21];
+  EXEC SQL END DECLARE SECTION;
+
+  printf("가게 이름을 입력하세요: ");
+  fgets((char *)title.arr, sizeof(title.arr), stdin);
+  title.arr[strlen((char *)title.arr) - 1] = '\0';
+  title.len = strlen((char *)title.arr);
+  if (title.len == 0) {
+    printf("가게 이름을 입력하세요.\n");
+    return -1011;
+  }
+
+  // clang-format off
+  EXEC SQL INSERT
+    INTO shops(shop_id,
+               owner_id,
+               title)
+    VALUES (shops_seq.nextval,
+            :user->user_id,
+            :title);
+  // clang-format on
+
+  EXEC SQL COMMIT WORK;
+  printf("\n가게가 등록되었습니다.\n");
+  return 0;
+}
+
+int ReadShopsFromOwner() {
+  int shop_id;
+  VARCHAR title[21];
+
+  sprintf(query, "SELECT shop_id, title FROM shops WHERE owner_id = %d",
+          user->user_id);
+  // clang-format off
+  EXEC SQL PREPARE s1 FROM :query;
+  EXEC SQL DECLARE c1 CURSOR FOR s1;
+  // clang-format on
+  EXEC SQL OPEN c1;
+  EXEC SQL WHENEVER NOT FOUND DO break;
+
+  printf("%10s %10s\n", "shop_id", "title");
+  while (true) {
+    // clang-format off
+    EXEC SQL FETCH c1 INTO :shop_id, :title;
+    // clang-format on
+    title.arr[title.len] = '\0';
+    printf("%10d %10s\n", shop_id, title.arr);
+  }
+  printf("Total: %d\n", sqlca.sqlerrd[2]);
+
+  EXEC SQL CLOSE c1;
+  return 0;
+}
+
 void ShowMenu() {
   printf("0. 종료\n\n");
   if (is_authorized) {
@@ -236,6 +294,13 @@ int main(int argc, const char *argv[]) {
           break;
         case 2:
           return_code = SignOut();
+          break;
+        case 101:
+          return_code = RegisterShop();
+          break;
+        case 102:
+          return_code = ReadShopsFromOwner();
+          KeyHit();
           break;
         default:
           break;
