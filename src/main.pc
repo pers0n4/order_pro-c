@@ -273,6 +273,80 @@ int SelectShop() {
   return 0;
 }
 
+int CreateMenu() {
+  VARCHAR title[21];
+  unsigned int price;
+  VARCHAR description[101];
+
+  printf("메뉴 이름을 입력하세요: ");
+  fgets((char *)title.arr, sizeof(title.arr), stdin);
+  title.arr[strlen((char *)title.arr) - 1] = '\0';
+  title.len = strlen((char *)title.arr);
+  if (title.len == 0) {
+    printf("메뉴 이름을 입력하세요.\n");
+    return -2011;
+  }
+
+  printf("가격을 입력하세요: ");
+  scanf("%u", &price);
+
+  printf("설명을 입력하세요: ");
+  fgets((char *)description.arr, sizeof(description.arr), stdin);
+  description.arr[strlen((char *)description.arr) - 1] = '\0';
+  description.len = strlen((char *)description.arr);
+
+  // clang-format off
+  EXEC SQL INSERT
+    INTO menus(menu_id,
+               shop_id,
+               title,
+               price,
+               description)
+    VALUES (menus_seq.nextval,
+            :shop->shop_id,
+            :title,
+            :price,
+            :description);
+  // clang-format on
+
+  EXEC SQL COMMIT WORK;
+  printf("\n가게가 등록되었습니다.\n");
+
+  return 0;
+}
+
+int ReadMenusFromShop() {
+  int menu_id;
+  VARCHAR title[21];
+  unsigned int price;
+  VARCHAR description[101];
+
+  sprintf(
+      query,
+      "SELECT menu_id, title, price, description FROM menus WHERE shop_id = %d",
+      shop->shop_id);
+  // clang-format off
+  EXEC SQL PREPARE stmt FROM :query;
+  EXEC SQL DECLARE cur CURSOR FOR stmt;
+  // clang-format on
+  EXEC SQL OPEN cur;
+  EXEC SQL WHENEVER NOT FOUND DO break;
+
+  printf("%10s %10s %10s %20s\n", "menu_id", "title", "price", "description");
+  while (true) {
+    // clang-format off
+    EXEC SQL FETCH cur INTO :menu_id, :title, :price, :description;
+    // clang-format on
+    title.arr[title.len] = '\0';
+    description.arr[description.len] = '\0';
+    printf("%10d %10s %10u %20s\n", menu_id, title.arr, price, description.arr);
+  }
+  printf("Total: %d\n", sqlca.sqlerrd[2]);
+
+  EXEC SQL CLOSE cur;
+  return 0;
+}
+
 void ShowMenu() {
   printf("0. 종료\n\n");
   if (is_authorized) {
@@ -292,9 +366,11 @@ void ShowMenu() {
     puts("");
 
     if (shop) {
-      printf("201. 메뉴 등록 (TODO)\n");
-      printf("202. 메뉴 수정 (TODO)\n");
-      printf("203. 메뉴 삭제 (TODO)\n");
+      printf("201. 메뉴 등록\n");
+      printf("202. 메뉴 조회\n");
+      printf("203. 메뉴 선택 (TODO)\n");
+      printf("204. 메뉴 수정 (TODO)\n");
+      printf("205. 메뉴 삭제 (TODO)\n");
       puts("");
     }
   }
@@ -347,6 +423,13 @@ int main(int argc, const char *argv[]) {
           break;
         case 103:
           return_code = SelectShop();
+          break;
+        case 201:
+          return_code = CreateMenu();
+          break;
+        case 202:
+          return_code = ReadMenusFromShop();
+          KeyHit();
           break;
         default:
           break;
