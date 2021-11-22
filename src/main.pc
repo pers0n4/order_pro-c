@@ -222,23 +222,23 @@ int ReadShopsFromOwner() {
   sprintf(query, "SELECT shop_id, title FROM shops WHERE owner_id = %d",
           user->user_id);
   // clang-format off
-  EXEC SQL PREPARE s1 FROM :query;
-  EXEC SQL DECLARE c1 CURSOR FOR s1;
+  EXEC SQL PREPARE stmt FROM :query;
+  EXEC SQL DECLARE cur CURSOR FOR stmt;
   // clang-format on
-  EXEC SQL OPEN c1;
+  EXEC SQL OPEN cur;
   EXEC SQL WHENEVER NOT FOUND DO break;
 
   printf("%10s %10s\n", "shop_id", "title");
   while (true) {
     // clang-format off
-    EXEC SQL FETCH c1 INTO :shop_id, :title;
+    EXEC SQL FETCH cur INTO :shop_id, :title;
     // clang-format on
     title.arr[title.len] = '\0';
     printf("%10d %10s\n", shop_id, title.arr);
   }
   printf("Total: %d\n", sqlca.sqlerrd[2]);
 
-  EXEC SQL CLOSE c1;
+  EXEC SQL CLOSE cur;
   return 0;
 }
 
