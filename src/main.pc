@@ -347,6 +347,104 @@ int ReadMenusFromShop() {
   return 0;
 }
 
+int Order() {
+  int shop_id;
+  VARCHAR title[21];
+
+  sprintf(query, "SELECT shop_id, title FROM shops");
+  // clang-format off
+  EXEC SQL PREPARE stmt FROM :query;
+  EXEC SQL DECLARE cur CURSOR FOR stmt;
+  // clang-format on
+  EXEC SQL OPEN cur;
+  EXEC SQL WHENEVER NOT FOUND DO break;
+
+  puts("가게 목록");
+  printf("%10s %10s\n", "shop_id", "title");
+  while (true) {
+    // clang-format off
+    EXEC SQL FETCH cur INTO :shop_id, :title;
+    // clang-format on
+    title.arr[title.len] = '\0';
+    printf("%10d %10s\n", shop_id, title.arr);
+  }
+  EXEC SQL CLOSE cur;
+  printf("Total: %d\n\n", sqlca.sqlerrd[2]);
+
+  printf("주문할 가게를 선택하세요: ");
+  scanf("%d", &shop_id);
+
+  int menu_id;
+
+  sprintf(query, "SELECT menu_id, title FROM menus WHERE shop_id = %d",
+          shop_id);
+  // clang-format off
+  EXEC SQL PREPARE stmt FROM :query;
+  EXEC SQL DECLARE cur CURSOR FOR stmt;
+  // clang-format on
+  EXEC SQL OPEN cur;
+  EXEC SQL WHENEVER NOT FOUND DO break;
+
+  puts("\n메뉴 목록");
+  printf("%10s %10s\n", "menu_id", "title");
+  while (true) {
+    // clang-format off
+    EXEC SQL FETCH cur INTO :menu_id, :title;
+    // clang-format on
+    title.arr[title.len] = '\0';
+    printf("%10d %10s\n", menu_id, title.arr);
+  }
+  EXEC SQL CLOSE cur;
+  printf("Total: %d\n\n", sqlca.sqlerrd[2]);
+
+  // TODO: 주문 트랜잭션 처리
+
+  EXEC SQL WHENEVER NOT FOUND DO SqlError("ORACLE error--");
+  // clang-format off
+  EXEC SQL INSERT
+    INTO orders(order_id,
+                user_id,
+                shop_id)
+    VALUES (orders_seq.nextval,
+            :user->user_id,
+            :shop_id);
+  // clang-format on
+
+  puts("주문 완료 = 0");
+  while (true) {
+    printf("주문할 메뉴를 선택하세요 : ");
+    scanf("%d", &menu_id);
+    if (menu_id == 0) {
+      break;
+    }
+
+    int quantity;
+    printf("수량을 입력하세요: ");
+    scanf("%d", &quantity);
+    if (quantity <= 0) {
+      printf("수량은 1이상이어야 합니다.\n");
+      continue;
+    }
+
+    // clang-format off
+    EXEC SQL INSERT
+      INTO order_lines(order_line_id,
+                       order_id,
+                       menu_id,
+                       quantity)
+      VALUES (order_lines_seq.NEXTVAL,
+              orders_seq.CURRVAL,
+              :menu_id,
+              :quantity);
+    // clang-format on
+  }
+  __fpurge(stdin);
+
+  EXEC SQL COMMIT WORK;
+  puts("\n주문이 완료되었습니다.");
+  return 0;
+}
+
 void ShowMenu() {
   printf("0. 종료\n\n");
   if (is_authorized) {
@@ -437,6 +535,8 @@ int main(int argc, const char *argv[]) {
       } else if (!strcmp(user->user_type.arr, "consumer")) {
         switch (select_menu) {
           case 101:
+            return_code = Order();
+            KeyHit();
             break;
           case 102:
             break;
