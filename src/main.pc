@@ -380,10 +380,12 @@ int Order() {
           shop_id);
   // clang-format off
   EXEC SQL PREPARE stmt FROM :query;
+
   EXEC SQL DECLARE cur CURSOR FOR stmt;
-  // clang-format on
   EXEC SQL OPEN cur;
+
   EXEC SQL WHENEVER NOT FOUND DO break;
+  // clang-format on
 
   puts("\n메뉴 목록");
   printf("%10s %10s\n", "menu_id", "title");
@@ -410,6 +412,21 @@ int Order() {
             :shop_id);
   // clang-format on
 
+  sprintf(query,
+          "INSERT"
+          "    INTO order_lines(order_line_id,"
+          "                     order_id,"
+          "                     menu_id,"
+          "                     quantity)"
+          "    VALUES (order_lines_seq.nextval,"
+          "            orders_seq.currval,"
+          "            :menu_id,"
+          "            :quantity)");
+
+  // clang-format off
+  EXEC SQL PREPARE stmt FROM :query;
+  // clang-format on
+
   puts("주문 완료 = 0");
   while (true) {
     printf("주문할 메뉴를 선택하세요 : ");
@@ -427,15 +444,7 @@ int Order() {
     }
 
     // clang-format off
-    EXEC SQL INSERT
-      INTO order_lines(order_line_id,
-                       order_id,
-                       menu_id,
-                       quantity)
-      VALUES (order_lines_seq.NEXTVAL,
-              orders_seq.CURRVAL,
-              :menu_id,
-              :quantity);
+    EXEC SQL EXECUTE stmt USING :menu_id, :quantity;
     // clang-format on
   }
   __fpurge(stdin);
