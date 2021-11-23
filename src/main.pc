@@ -637,7 +637,11 @@ int main(int argc, const char *argv[]) {
   while (select_menu != 0 && return_code == 0) {
     ClearScreen();
     if (is_authorized) {
-      printf("현재 로그인된 유저: %s\n\n", user->username.arr);
+      printf("현재 로그인된 유저: %s\n", user->username.arr);
+      printf("전화번호: %s\n", user->phone_number.arr);
+      printf("주소: %s\n", user->address.arr);
+      printf("로그인 정보: %s\n", user->user_type.arr);
+      puts("");
     }
 
     ShowMenu();
