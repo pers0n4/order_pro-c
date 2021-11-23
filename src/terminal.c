@@ -29,3 +29,15 @@ bool KeyHit(void) {
   // }
   return ((ch != -1) ? true : false);
 }
+
+/*
+#include <sys/ioctl.h>
+
+void ScreenSize(void) {
+  struct winsize w;
+  ioctl(STDIN_FILENO, TIOCGWINSZ, &w);
+
+  printf("row %d\n", w.ws_row);
+  printf("col %d\n", w.ws_col);
+}
+*/
