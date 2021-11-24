@@ -9,7 +9,7 @@ You need [Oracle Instant Client Precompiler](https://www.oracle.com/database/tec
 ### Build
 
 ```shell
-git clone https://github.com/pers0n4/delivery_proc
+git clone https://github.com/pers0n4/order_pro-c.git
 
 docker build -t oracle-proc ./oracle-proc
 docker run --rm oracle-proc
