@@ -9,17 +9,20 @@
  *
  */
 
+#define _CRT_SECURE_NO_WARNINGS
+
 #include <sqlca.h>
 #include <sqlcpr.h>
 #include <sqlda.h>
 #include <stdbool.h>
 #include <stdio.h>
-#include <stdio_ext.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "database.h"
 #include "terminal.h"
+
+EXEC SQL BEGIN DECLARE SECTION;
 
 char query[1024];
 
@@ -30,17 +33,19 @@ struct User {
   VARCHAR address[81];
   VARCHAR user_type[9];
 };
-bool is_authorized = false;
 
-struct User *user;
-
-typedef struct Shop {
+struct Shop {
   int shop_id;
   int owner_id;
   VARCHAR title[21];
-} Shop;
+};
 
-Shop *shop;
+struct User *user;
+struct Shop *shop;
+
+EXEC SQL END DECLARE SECTION;
+
+bool is_authorized = false;
 
 int SignUp() {
   EXEC SQL BEGIN DECLARE SECTION;
@@ -218,10 +223,12 @@ int RegisterShop() {
 }
 
 int EditProfile() {
+  EXEC SQL BEGIN DECLARE SECTION;
   VARCHAR password[41];
   VARCHAR password_confirm[41];
   VARCHAR phone_number[15];
   VARCHAR address[81];
+  EXEC SQL END DECLARE SECTION;
 
   char *vars = (char *)calloc(512, sizeof(char));
 
@@ -275,8 +282,10 @@ int EditProfile() {
 }
 
 int ReadShopsFromOwner() {
+  EXEC SQL BEGIN DECLARE SECTION;
   int shop_id;
   VARCHAR title[21];
+  EXEC SQL END DECLARE SECTION;
 
   sprintf(query, "SELECT shop_id, title FROM shops WHERE owner_id = %d",
           user->user_id);
@@ -302,12 +311,14 @@ int ReadShopsFromOwner() {
 }
 
 int SelectShop() {
+  EXEC SQL BEGIN DECLARE SECTION;
   int shop_id;
   int owner_id;
   VARCHAR title[21];
+  EXEC SQL END DECLARE SECTION;
 
   if (shop == NULL) {
-    if ((shop = (Shop *)malloc(sizeof(Shop))) == NULL) {
+    if ((shop = (struct Shop *)malloc(sizeof(struct Shop))) == NULL) {
       fprintf(stderr, "Memory allocation error.\n");
       exit(EXIT_FAILURE);
     }
@@ -331,9 +342,11 @@ int SelectShop() {
 }
 
 int CreateMenu() {
+  EXEC SQL BEGIN DECLARE SECTION;
   VARCHAR title[21];
   unsigned int price;
   VARCHAR description[101];
+  EXEC SQL END DECLARE SECTION;
 
   printf("메뉴 이름을 입력하세요: ");
   fgets((char *)title.arr, sizeof(title.arr), stdin);
@@ -373,10 +386,12 @@ int CreateMenu() {
 }
 
 int ReadMenusFromShop() {
+  EXEC SQL BEGIN DECLARE SECTION;
   int menu_id;
   VARCHAR title[21];
   unsigned int price;
   VARCHAR description[101];
+  EXEC SQL END DECLARE SECTION;
 
   sprintf(
       query,
@@ -405,8 +420,11 @@ int ReadMenusFromShop() {
 }
 
 int Order() {
+  EXEC SQL BEGIN DECLARE SECTION;
   int shop_id;
   VARCHAR title[21];
+  int quantity;
+  EXEC SQL END DECLARE SECTION;
 
   sprintf(query, "SELECT shop_id, title FROM shops");
   // clang-format off
@@ -492,7 +510,6 @@ int Order() {
       break;
     }
 
-    int quantity;
     printf("수량을 입력하세요: ");
     scanf("%d", &quantity);
     if (quantity <= 0) {
@@ -504,7 +521,7 @@ int Order() {
     EXEC SQL EXECUTE stmt USING :menu_id, :quantity;
     // clang-format on
   }
-  __fpurge(stdin);
+  FlushInputBuffer();
 
   EXEC SQL COMMIT WORK;
   puts("\n주문이 완료되었습니다.");
@@ -512,10 +529,12 @@ int Order() {
 }
 
 int ReadOrdersFromConsumer() {
+  EXEC SQL BEGIN DECLARE SECTION;
   int order_id;
   VARCHAR title[21];
   int amount;
   char ordered_at[20];
+  EXEC SQL END DECLARE SECTION;
 
   sprintf(query,
           "SELECT o.order_id,"
@@ -586,7 +605,7 @@ int ReadOrdersFromConsumer() {
     printf("%10s %10d %10d %10d\n", title.arr, price, quantity, amount);
   }
   EXEC SQL CLOSE cur;
-  __fpurge(stdin);
+  FlushInputBuffer();
 
   return 0;
 }
@@ -648,7 +667,7 @@ int main(int argc, const char *argv[]) {
 
     printf("입력: ");
     scanf("%d", &select_menu);
-    __fpurge(stdin);
+    FlushInputBuffer();
     ClearScreen();
 
     if (is_authorized) {

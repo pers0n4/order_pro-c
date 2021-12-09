@@ -1,6 +1,7 @@
 #include <sqlcpr.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "database.h"
 
@@ -24,16 +25,26 @@ void SqlError(char *msg) {
 }
 
 int ConnectDatabase(int argc, const char **argv) {
+  EXEC SQL BEGIN DECLARE SECTION;
+  char *username;
+  char *password;
+  EXEC SQL END DECLARE SECTION;
+
+  username = (char *)calloc(strlen(argv[1]) + 1, sizeof(char));
+  strcpy(username, argv[1]);
+
   EXEC SQL WHENEVER SQLERROR DO SqlError("ORACLE error--");
   switch (argc) {
     case 2:
       // clang-format off
-      EXEC SQL CONNECT :argv[1];
+      EXEC SQL CONNECT :username;
       // clang-format on
       break;
     case 3:
+      password = (char *)calloc(strlen(argv[2]) + 1, sizeof(char));
+      strcpy(password, argv[2]);
       // clang-format off
-      EXEC SQL CONNECT :argv[1] IDENTIFIED BY :argv[2];
+      EXEC SQL CONNECT :username IDENTIFIED BY :password;
       // clang-format on
       break;
     default:
