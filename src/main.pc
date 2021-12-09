@@ -313,8 +313,6 @@ int ReadShopsFromOwner() {
 int SelectShop() {
   EXEC SQL BEGIN DECLARE SECTION;
   int shop_id;
-  int owner_id;
-  VARCHAR title[21];
   EXEC SQL END DECLARE SECTION;
 
   if (shop == NULL) {
