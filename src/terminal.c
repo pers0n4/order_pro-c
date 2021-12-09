@@ -80,6 +80,9 @@ void FlushInputBuffer(void) {
   fflush(stdin);
 }
 
-#define KeyHit() _getch()
+bool KeyHit(void) {
+  int key = _getch();
+  return key;
+}
 
 #endif
