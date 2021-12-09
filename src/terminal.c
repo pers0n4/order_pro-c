@@ -5,11 +5,10 @@
 
 #ifdef __linux__
 
-#include <termios.h>
-#include <unistd.h>
-
 void ClearScreen(void) { printf("%c[H%c[J", ESC, ESC); }
 void MoveCursor(int row, int col) { printf("%c[%d;%dH", ESC, col, row); }
+
+void FlushInputBuffer(void) { __fpurge(stdin); }
 
 bool KeyHit(void) {
   int ch;
@@ -47,9 +46,6 @@ void ScreenSize(void) {
 
 #elif _WIN32
 
-#include <conio.h>
-#include <windows.h>
-
 // https://www.cplusplus.com/articles/4z18T05o/
 void ClearScreen(void) {
   HANDLE hStdOut;
@@ -77,6 +73,11 @@ void ClearScreen(void) {
 
   /* Move the cursor home */
   SetConsoleCursorPosition(hStdOut, homeCoords);
+}
+
+void FlushInputBuffer(void) {
+  // while (getchar() != '\n');
+  fflush(stdin);
 }
 
 #define KeyHit() _getch()

@@ -5,6 +5,21 @@
 
 #define ESC '\033'
 
+#ifdef __linux__
+
+#include <stdio_ext.h>
+#include <termios.h>
+#include <unistd.h>
+
+#elif _WIN32
+
+#include <conio.h>
+#include <windows.h>
+
+#endif
+
+void FlushInputBuffer(void);
+
 void ClearScreen(void);
 void MoveCursor(int row, int col);
 
