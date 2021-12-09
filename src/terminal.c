@@ -76,8 +76,8 @@ void ClearScreen(void) {
 }
 
 void FlushInputBuffer(void) {
-  // while (getchar() != '\n');
-  fflush(stdin);
+  while (getchar() != '\n')
+    ;
 }
 
 bool KeyHit(void) {
