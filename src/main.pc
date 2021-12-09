@@ -339,7 +339,7 @@ int SelectShop() {
   return 0;
 }
 
-int CreateMenu() {
+int CreateShopMenu() {
   EXEC SQL BEGIN DECLARE SECTION;
   VARCHAR title[21];
   unsigned int price;
@@ -691,7 +691,7 @@ int main(int argc, const char *argv[]) {
             return_code = SelectShop();
             break;
           case 201:
-            return_code = CreateMenu();
+            return_code = CreateShopMenu();
             break;
           case 202:
             return_code = ReadMenusFromShop();
